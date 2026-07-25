@@ -14,7 +14,7 @@
     "compare",
     "changes"
   ],
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "MIT",
   "engines": {
     "atom": ">=1.100.0 <2.0.0"
@@ -36,7 +36,7 @@
   "providedServices": {
     "scrollmap": {
       "versions": {
-        "1.0.0": "provideScrollmap"
+        "1.1.0": "provideScrollmap"
       }
     }
   },

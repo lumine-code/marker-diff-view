@@ -7,7 +7,7 @@ A layer package for [scrollmap](https://github.com/lumine-code/scrollmap). Requi
 ## Features
 
 - **Diff markers**: shows diff chunks of both compared editors on the scrollbar.
-- **Added and removed**: chunks are styled separately for each side of the diff.
+- **Added and removed**: chunks are styled separately for each side of the diff, following the diff-view added-color side setting.
 - **Range merging**: adjacent chunk rows are merged into a single marker.
 - **Threshold**: hides markers when the chunk count exceeds a configurable limit.
 
@@ -20,7 +20,7 @@ To install `scrollmap-diff-view` search for _scrollmap-diff-view_ in the Install
 The marker style can be adjusted in the `styles.less` file, e.g. change the marker colors:
 
 ```less
-.scrollmap .marker.marker-diff {
+.scrollmap .marker.marker-diff-view {
   &.added {
     background-color: var(--text-color-info);
   }
@@ -32,7 +32,7 @@ The marker style can be adjusted in the `styles.less` file, e.g. change the mark
 
 ## Services
 
-- **scrollmap** (`1.0.0`): provided to render diff chunk markers as a layer on the editor scrollbar.
+- **scrollmap** (`1.1.0`): provided to render diff chunk markers as a layer on the editor scrollbar.
 - **diff-view** (`^1.0.0`): consumed to observe diff updates and read the chunks of the compared editors.
 
 ## Contributing

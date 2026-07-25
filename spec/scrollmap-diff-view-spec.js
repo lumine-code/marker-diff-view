@@ -28,7 +28,7 @@ describe("scrollmap-diff-view", () => {
 
   // Fake provider mirroring the object returned by the real diff-view
   // package's provideDiffService(): onDidUpdate callbacks receive
-  // { chunks, editor1, editor2 } or null (see lumine-code/diff-view).
+  // { chunks, editor1, editor2, addedColorSide } or null.
   function makeFakeService() {
     const emitter = new Emitter();
     return {
@@ -61,9 +61,11 @@ describe("scrollmap-diff-view", () => {
 
   it("activates and provides a scrollmap layer descriptor", () => {
     expect(atom.packages.isPackageActive("scrollmap-diff-view")).toBe(true);
-    expect(provider.name).toBe("diff");
+    expect(provider.name).toBe("diff-view");
     expect(typeof provider.description).toBe("string");
     expect(provider.timer).toBe(100);
+    expect(provider.merge).toBe(true);
+    expect(provider.threshold).toBe("scrollmap-diff-view.threshold");
     expect(typeof provider.initialize).toBe("function");
     expect(typeof provider.getItems).toBe("function");
   });
@@ -78,38 +80,46 @@ describe("scrollmap-diff-view", () => {
     expect(layer2.items).toEqual([{ row: 2, end: 2, cls: "removed" }]);
   });
 
-  it("merges adjacent chunks into a single ranged item", () => {
+  it("swaps the classes when the diff puts the added color on the right", () => {
+    service.emitter.emit("did-update-diff", {
+      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 3 }],
+      editor1,
+      editor2,
+      addedColorSide: "right",
+    });
+    expect(layer1.items).toEqual([{ row: 2, end: 3, cls: "removed" }]);
+    expect(layer2.items).toEqual([{ row: 2, end: 2, cls: "added" }]);
+  });
+
+  it("skips one-sided chunks on the editor they cover no lines of", () => {
+    // A pure insertion: no rows in the old file, two rows in the new one.
+    service.emitter.emit("did-update-diff", {
+      chunks: [{ oldLineStart: 5, oldLineEnd: 5, newLineStart: 5, newLineEnd: 7 }],
+      editor1,
+      editor2,
+    });
+    expect(layer1.items).toEqual([]);
+    expect(layer2.items).toEqual([{ row: 5, end: 6, cls: "removed" }]);
+  });
+
+  it("returns one raw item per two-sided chunk and leaves merging to the hub", () => {
     service.emitter.emit("did-update-diff", {
       chunks: [
         { oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 },
         { oldLineStart: 4, oldLineEnd: 7, newLineStart: 4, newLineEnd: 7 },
-        { oldLineStart: 20, oldLineEnd: 21, newLineStart: 20, newLineEnd: 21 },
       ],
       editor1,
       editor2,
     });
     expect(layer1.items).toEqual([
-      { row: 2, end: 6, cls: "added" },
-      { row: 20, end: 20, cls: "added" },
+      { row: 2, end: 3, cls: "added" },
+      { row: 4, end: 6, cls: "added" },
     ]);
-  });
-
-  it("hides all markers when the chunk count exceeds the threshold", () => {
-    atom.config.set("scrollmap-diff-view.threshold", 1);
-    service.emitter.emit("did-update-diff", {
-      chunks: [
-        { oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 },
-        { oldLineStart: 20, oldLineEnd: 21, newLineStart: 20, newLineEnd: 21 },
-      ],
-      editor1,
-      editor2,
-    });
-    expect(layer1.items).toEqual([]);
   });
 
   it("clears the previous editors when the diff view is closed", () => {
     service.emitter.emit("did-update-diff", {
-      chunks: [{ oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 }],
+      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
       editor1,
       editor2,
     });
@@ -123,7 +133,7 @@ describe("scrollmap-diff-view", () => {
 
   it("clears the layers when the consumer is disposed", () => {
     service.emitter.emit("did-update-diff", {
-      chunks: [{ oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 }],
+      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
       editor1,
       editor2,
     });
@@ -136,7 +146,7 @@ describe("scrollmap-diff-view", () => {
 
     layer1.update.calls.reset();
     service.emitter.emit("did-update-diff", {
-      chunks: [{ oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 }],
+      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
       editor1,
       editor2,
     });
