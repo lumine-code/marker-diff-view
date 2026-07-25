@@ -1,6 +1,8 @@
 # scrollmap-diff-view
 
-Show diff chunks on the scrollbar. A layer package for [scrollmap](https://github.com/lumine-code/scrollmap). Requires [diff-view](https://github.com/lumine-code/diff-view).
+Show diff chunks on the scrollbar.
+
+A layer package for [scrollmap](https://github.com/lumine-code/scrollmap). Requires [diff-view](https://github.com/lumine-code/diff-view).
 
 ## Features
 
