@@ -20,10 +20,6 @@ describe("scrollmap-diff-view", () => {
     });
     fake.updateSync = fake.update;
     fake.refresh = () => {};
-    targetEditor.scrollmap = {
-      layers: new Map([[provider.name, fake]]),
-      updateView() {},
-    };
     if (provider.initialize) {
       provider.initialize(fake);
     }
