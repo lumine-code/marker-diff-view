@@ -1,0 +1,149 @@
+const { CompositeDisposable, Emitter } = require("atom");
+
+describe("scrollmap-diff-view", () => {
+  let editor1, editor2, mainModule, provider, layer1, layer2, service, consumerDisposable;
+
+  // Minimal stand-in for the layer object the scrollmap hub passes to
+  // `initialize` and `getItems` (see lumine-code/scrollmap lib/layer.js).
+  function makeLayer(targetEditor) {
+    const fake = {
+      editor: targetEditor,
+      cache: new Map(),
+      items: [],
+      disposables: new CompositeDisposable(),
+    };
+    fake.update = jasmine.createSpy("update").and.callFake(() => {
+      const items = provider.getItems(fake);
+      if (items) {
+        fake.items = items;
+      }
+    });
+    fake.updateSync = fake.update;
+    fake.refresh = () => {};
+    targetEditor.scrollmap = {
+      layers: new Map([[provider.name, fake]]),
+      updateView() {},
+    };
+    if (provider.initialize) {
+      provider.initialize(fake);
+    }
+    return fake;
+  }
+
+  // Fake provider mirroring the object returned by the real diff-view
+  // package's provideDiffService(): onDidUpdate callbacks receive
+  // { chunks, editor1, editor2 } or null (see lumine-code/diff-view).
+  function makeFakeService() {
+    const emitter = new Emitter();
+    return {
+      emitter,
+      getDiffView: () => null,
+      onDidUpdate: (callback) => emitter.on("did-update-diff", callback),
+    };
+  }
+
+  beforeEach(async () => {
+    jasmine.attachToDOM(atom.views.getView(atom.workspace));
+    const pack = await atom.packages.activatePackage("scrollmap-diff-view");
+    mainModule = pack.mainModule;
+    provider = mainModule.provideScrollmap();
+    editor1 = await atom.workspace.open();
+    editor1.setText(Array(50).fill("old text").join("\n"));
+    editor2 = await atom.workspace.open();
+    editor2.setText(Array(50).fill("new text").join("\n"));
+    layer1 = makeLayer(editor1);
+    layer2 = makeLayer(editor2);
+    service = makeFakeService();
+    consumerDisposable = mainModule.consumeDiffService(service);
+  });
+
+  afterEach(() => {
+    consumerDisposable.dispose();
+    layer1.disposables.dispose();
+    layer2.disposables.dispose();
+  });
+
+  it("activates and provides a scrollmap layer descriptor", () => {
+    expect(atom.packages.isPackageActive("scrollmap-diff-view")).toBe(true);
+    expect(provider.name).toBe("diff");
+    expect(typeof provider.description).toBe("string");
+    expect(provider.timer).toBe(100);
+    expect(typeof provider.initialize).toBe("function");
+    expect(typeof provider.getItems).toBe("function");
+  });
+
+  it("marks the chunks of both diff editors with added and removed classes", () => {
+    service.emitter.emit("did-update-diff", {
+      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 3 }],
+      editor1,
+      editor2,
+    });
+    expect(layer1.items).toEqual([{ row: 2, end: 3, cls: "added" }]);
+    expect(layer2.items).toEqual([{ row: 2, end: 2, cls: "removed" }]);
+  });
+
+  it("merges adjacent chunks into a single ranged item", () => {
+    service.emitter.emit("did-update-diff", {
+      chunks: [
+        { oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 },
+        { oldLineStart: 4, oldLineEnd: 7, newLineStart: 4, newLineEnd: 7 },
+        { oldLineStart: 20, oldLineEnd: 21, newLineStart: 20, newLineEnd: 21 },
+      ],
+      editor1,
+      editor2,
+    });
+    expect(layer1.items).toEqual([
+      { row: 2, end: 6, cls: "added" },
+      { row: 20, end: 20, cls: "added" },
+    ]);
+  });
+
+  it("hides all markers when the chunk count exceeds the threshold", () => {
+    atom.config.set("scrollmap-diff-view.threshold", 1);
+    service.emitter.emit("did-update-diff", {
+      chunks: [
+        { oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 },
+        { oldLineStart: 20, oldLineEnd: 21, newLineStart: 20, newLineEnd: 21 },
+      ],
+      editor1,
+      editor2,
+    });
+    expect(layer1.items).toEqual([]);
+  });
+
+  it("clears the previous editors when the diff view is closed", () => {
+    service.emitter.emit("did-update-diff", {
+      chunks: [{ oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 }],
+      editor1,
+      editor2,
+    });
+    expect(layer1.items.length).toBe(1);
+    expect(layer2.items.length).toBe(1);
+
+    service.emitter.emit("did-update-diff", null);
+    expect(layer1.items).toEqual([]);
+    expect(layer2.items).toEqual([]);
+  });
+
+  it("clears the layers when the consumer is disposed", () => {
+    service.emitter.emit("did-update-diff", {
+      chunks: [{ oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 }],
+      editor1,
+      editor2,
+    });
+    expect(layer1.items.length).toBe(1);
+
+    consumerDisposable.dispose();
+    expect(layer1.items).toEqual([]);
+    expect(layer2.items).toEqual([]);
+    expect(mainModule.diffService).toBeNull();
+
+    layer1.update.calls.reset();
+    service.emitter.emit("did-update-diff", {
+      chunks: [{ oldLineStart: 2, oldLineEnd: 3, newLineStart: 2, newLineEnd: 3 }],
+      editor1,
+      editor2,
+    });
+    expect(layer1.update).not.toHaveBeenCalled();
+  });
+});

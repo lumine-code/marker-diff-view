@@ -1,0 +1,11 @@
+.scrollmap .marker.marker-diff {
+  z-index: 12;
+
+  &.added {
+    background-color: var(--text-color-success);
+  }
+
+  &.removed {
+    background-color: var(--text-color-error);
+  }
+}

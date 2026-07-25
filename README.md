@@ -1,14 +1,37 @@
 # scrollmap-diff-view
 
-Show diff chunks on the scrollbar.
+Show diff chunks on the scrollbar. A layer package for [scrollmap](https://github.com/lumine-code/scrollmap). Requires [diff-view](https://github.com/lumine-code/diff-view).
+
+## Features
+
+- **Diff markers**: shows diff chunks of both compared editors on the scrollbar.
+- **Added and removed**: chunks are styled separately for each side of the diff.
+- **Range merging**: adjacent chunk rows are merged into a single marker.
+- **Threshold**: hides markers when the chunk count exceeds a configurable limit.
 
 ## Installation
 
-To install `scrollmap-diff-view` search for [scrollmap-diff-view](https://web.pulsar-edit.dev/packages/scrollmap-diff-view) in the Install pane of the Pulsar settings or run `ppm install scrollmap-diff-view`. Alternatively, you can run `ppm install asiloisad/pulsar-scrollmap-diff-view` to install a package directly from the GitHub repository.
+To install `scrollmap-diff-view` search for _scrollmap-diff-view_ in the Install pane of the Lumine settings or run `lumine --install lumine-code/scrollmap-diff-view`.
 
-Layer package for [scrollmap](https://github.com/asiloisad/pulsar-scrollmap).
+## Customization
 
-Requires [diff-view](https://github.com/asiloisad/pulsar-diff-view).
+The marker style can be adjusted in the `styles.less` file, e.g. change the marker colors:
+
+```less
+.scrollmap .marker.marker-diff {
+  &.added {
+    background-color: var(--text-color-info);
+  }
+  &.removed {
+    background-color: var(--text-color-warning);
+  }
+}
+```
+
+## Services
+
+- **scrollmap** (`1.0.0`): provided to render diff chunk markers as a layer on the editor scrollbar.
+- **diff-view** (`0.0.1`): consumed to observe diff updates and read the chunks of the compared editors.
 
 ## Contributing
 
