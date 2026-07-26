@@ -29,7 +29,7 @@
   "consumedServices": {
     "diff-view": {
       "versions": {
-        "^1.0.0": "consumeDiffService"
+        "^1.0.0": "consumeDiffView"
       }
     }
   },

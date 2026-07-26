@@ -50,7 +50,7 @@ describe("scrollmap-diff-view", () => {
     layer1 = makeLayer(editor1);
     layer2 = makeLayer(editor2);
     service = makeFakeService();
-    consumerDisposable = mainModule.consumeDiffService(service);
+    consumerDisposable = mainModule.consumeDiffView(service);
   });
 
   afterEach(() => {
