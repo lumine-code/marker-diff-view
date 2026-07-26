@@ -32,7 +32,7 @@ The marker style can be adjusted in the `styles.less` file, e.g. change the mark
 
 ## Services
 
-- **scrollmap** (`1.1.0`): provided to render diff chunk markers as a layer on the editor scrollbar.
+- **scrollmap.layer** (`1.0.0`): provided to render diff chunk markers as a layer on the editor scrollbar.
 - **diff-view** (`^1.0.0`): consumed to observe diff updates and read the chunks of the compared editors.
 
 ## Contributing

@@ -42,7 +42,7 @@ describe("scrollmap-diff-view", () => {
     jasmine.attachToDOM(atom.views.getView(atom.workspace));
     const pack = await atom.packages.activatePackage("scrollmap-diff-view");
     mainModule = pack.mainModule;
-    provider = mainModule.provideScrollmap();
+    provider = mainModule.provideScrollmapLayer();
     editor1 = await atom.workspace.open();
     editor1.setText(Array(50).fill("old text").join("\n"));
     editor2 = await atom.workspace.open();
