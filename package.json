@@ -1,16 +1,18 @@
 {
-  "name": "scrollmap-diff-view",
+  "name": "marker-diff-view",
   "author": "lumine-code",
-  "description": "Show diff chunks on the scrollbar.",
-  "repository": "https://github.com/lumine-code/scrollmap-diff-view",
+  "description": "Show diff chunks on the scrollbar and minimap.",
+  "repository": "https://github.com/lumine-code/marker-diff-view",
   "bugs": {
-    "url": "https://github.com/lumine-code/scrollmap-diff-view/issues"
+    "url": "https://github.com/lumine-code/marker-diff-view/issues"
   },
   "keywords": [
     "overview-ruler",
     "gutter",
     "annotation",
     "decoration",
+    "scrollmap",
+    "minimap",
     "compare",
     "changes"
   ],
@@ -21,7 +23,7 @@
   },
   "main": "./lib/main",
   "scripts": {
-    "test": "cd ../../lumine && npm run test:only -- ../pkg_lumine/scrollmap-diff-view/spec",
+    "test": "cd ../../lumine && npm run test:only -- ../pkg_lumine/marker-diff-view/spec",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -34,9 +36,9 @@
     }
   },
   "providedServices": {
-    "scrollmap.layer": {
+    "marker.layer": {
       "versions": {
-        "1.0.0": "provideScrollmapLayer"
+        "1.0.0": "provideMarkerLayer"
       }
     }
   },

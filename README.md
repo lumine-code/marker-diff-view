@@ -1,26 +1,26 @@
-# scrollmap-diff-view
+# marker-diff-view
 
-Show diff chunks on the scrollbar.
+Show diff chunks on the scrollbar and minimap.
 
-A layer package for [scrollmap](https://github.com/lumine-code/scrollmap). Requires [diff-view](https://github.com/lumine-code/diff-view).
+A marker layer drawn by [scrollmap](https://github.com/lumine-code/scrollmap) and [minimap](https://github.com/lumine-code/minimap). Requires [diff-view](https://github.com/lumine-code/diff-view).
 
 ## Features
 
-- **Diff markers**: shows diff chunks of both compared editors on the scrollbar.
+- **Diff markers**: shows diff chunks of both compared editors on the scrollbar and minimap.
 - **Added and removed**: chunks are styled separately for each side of the diff, following the diff-view added-color side setting.
 - **Range merging**: adjacent chunk rows are merged into a single marker.
 - **Threshold**: hides markers when the chunk count exceeds a configurable limit.
 
 ## Installation
 
-To install `scrollmap-diff-view` search for _scrollmap-diff-view_ in the Install pane of the Lumine settings or run `lumine --install lumine-code/scrollmap-diff-view`.
+To install `marker-diff-view` search for _marker-diff-view_ in the Install pane of the Lumine settings or run `lumine --install lumine-code/marker-diff-view`.
 
 ## Customization
 
 The marker style can be adjusted in the `styles.less` file, e.g. change the marker colors:
 
 ```less
-.scrollmap .marker.marker-diff-view {
+.marker.marker-diff-view {
   &.added {
     background-color: var(--text-color-info);
   }
@@ -32,7 +32,7 @@ The marker style can be adjusted in the `styles.less` file, e.g. change the mark
 
 ## Services
 
-- **[scrollmap.layer](https://lumine-code.github.io/docs.html#services/scrollmap.layer)** (`1.0.0`): provided to render diff chunk markers as a layer on the editor scrollbar.
+- **[marker.layer](https://lumine-code.github.io/docs.html#services/marker.layer)** (`1.0.0`): provided to render diff chunk markers as a layer on the editor's overview maps.
 - **[diff-view](https://lumine-code.github.io/docs.html#services/diff-view)** (`^1.0.0`): consumed to observe diff updates and read the chunks of the compared editors.
 
 ## Contributing

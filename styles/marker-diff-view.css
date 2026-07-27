@@ -1,4 +1,4 @@
-.scrollmap .marker.marker-diff-view {
+.marker.marker-diff-view {
   z-index: 12;
 
   &.added {
