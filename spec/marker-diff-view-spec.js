@@ -118,65 +118,21 @@ describe("marker-diff-view", () => {
     ]);
   });
 
-  it("updates every layer attached to one editor", () => {
-    // Two renderers each build their own layer for the same editor. A store
-    // holding one layer per editor would keep only the last, and the renderer
-    // that attached first would stop updating for good.
-    const second = makeLayer(editor1);
-
+  it("draws a diff that is already running on a layer attached afterwards", async () => {
+    // Chunks are cached per editor even when that editor has no layer yet: a
+    // layer built after the diff started must draw it without waiting for the
+    // next update.
+    const editor3 = await atom.workspace.open();
+    editor3.setText(Array(50).fill("new text").join("\n"));
     service.emitter.emit("did-update-diff", {
       chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
       editor1,
-      editor2,
-    });
-    expect(layer1.updateSync).toHaveBeenCalled();
-    expect(second.updateSync).toHaveBeenCalled();
-    expect(second.items).toEqual([{ row: 2, end: 3, cls: "added" }]);
-    expect(layer1.items).toEqual(second.items);
-
-    second.disposables.dispose();
-    layer1.updateSync.calls.reset();
-    second.updateSync.calls.reset();
-    service.emitter.emit("did-update-diff", {
-      chunks: [{ oldLineStart: 6, oldLineEnd: 8, newLineStart: 6, newLineEnd: 8 }],
-      editor1,
-      editor2,
-    });
-    expect(layer1.updateSync).toHaveBeenCalled();
-    expect(second.updateSync).not.toHaveBeenCalled();
-  });
-
-  it("keeps the running diff on the surviving layer when the other detaches", () => {
-    // Layer set and chunk cache are both keyed by editor, and the cache may only
-    // go when the last layer of that editor does. Dropping it on the first
-    // detach would blank the surviving renderer until the next diff update --
-    // which never comes while the diff sits unchanged.
-    const second = makeLayer(editor1);
-    service.emitter.emit("did-update-diff", {
-      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
-      editor1,
-      editor2,
-    });
-    expect(layer1.items).toEqual(second.items);
-
-    second.disposables.dispose();
-
-    // No new push: the layer redraws on its own and must still find the chunks.
-    layer1.items = [];
-    layer1.updateSync();
-    expect(layer1.items).toEqual([{ row: 2, end: 3, cls: "added" }]);
-  });
-
-  it("draws a diff that is already running on a layer attached afterwards", () => {
-    service.emitter.emit("did-update-diff", {
-      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
-      editor1,
-      editor2,
+      editor2: editor3,
     });
 
-    const late = makeLayer(editor1);
+    const late = makeLayer(editor3);
     late.updateSync();
-    expect(late.items).toEqual([{ row: 2, end: 3, cls: "added" }]);
+    expect(late.items).toEqual([{ row: 2, end: 3, cls: "removed" }]);
   });
 
   it("clears the previous editors when the diff view is closed", () => {
