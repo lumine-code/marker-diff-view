@@ -146,6 +146,27 @@ describe("marker-diff-view", () => {
     expect(second.updateSync).not.toHaveBeenCalled();
   });
 
+  it("keeps the running diff on the surviving layer when the other detaches", () => {
+    // Layer set and chunk cache are both keyed by editor, and the cache may only
+    // go when the last layer of that editor does. Dropping it on the first
+    // detach would blank the surviving renderer until the next diff update --
+    // which never comes while the diff sits unchanged.
+    const second = makeLayer(editor1);
+    service.emitter.emit("did-update-diff", {
+      chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
+      editor1,
+      editor2,
+    });
+    expect(layer1.items).toEqual(second.items);
+
+    second.disposables.dispose();
+
+    // No new push: the layer redraws on its own and must still find the chunks.
+    layer1.items = [];
+    layer1.updateSync();
+    expect(layer1.items).toEqual([{ row: 2, end: 3, cls: "added" }]);
+  });
+
   it("draws a diff that is already running on a layer attached afterwards", () => {
     service.emitter.emit("did-update-diff", {
       chunks: [{ oldLineStart: 2, oldLineEnd: 4, newLineStart: 2, newLineEnd: 4 }],
