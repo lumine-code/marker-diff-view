@@ -32,8 +32,8 @@ The marker style can be adjusted in the `styles.less` file, e.g. change the mark
 
 ## Services
 
-- **[marker.layer](https://lumine-code.github.io/docs.html#services/marker.layer)** (`1.0.0`): provided to render diff chunk markers as a layer on the editor's overview maps.
-- **[diff-view](https://lumine-code.github.io/docs.html#services/diff-view)** (`^1.0.0`): consumed to observe diff updates and read the chunks of the compared editors.
+- **marker.layer** (`1.0.0`): provided to render diff chunk markers as a layer on the editor's overview maps.
+- **diff-view** (`^1.0.0`): consumed to observe diff updates and read the chunks of the compared editors.
 
 ## Contributing
 
