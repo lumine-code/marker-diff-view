@@ -17,9 +17,9 @@ To install `marker-diff-view` search for _marker-diff-view_ in the Install pane 
 
 ## Customization
 
-The marker style can be adjusted in the `styles.less` file, e.g. change the marker colors:
+The marker style can be adjusted in the `styles.css` file, e.g. change the marker colors:
 
-```less
+```css
 .marker.marker-diff-view {
   &.added {
     background-color: var(--text-color-info);
